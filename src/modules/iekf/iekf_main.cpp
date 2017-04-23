@@ -52,7 +52,8 @@
 #include "IEKF.hpp"
 
 static IEKF *est = NULL;
-static int deamon_task;             /**< Handle of deamon task / thread */
+static int deamon_task = 0;             /**< Handle of deamon task / thread */
+volatile bool running = false;
 
 /**
  * Deamon management function.
@@ -115,7 +116,7 @@ int iekf_main(int argc, char *argv[])
 	if (!strcmp(argv[1], "stop")) {
 		if (est != NULL) {
 			PX4_INFO("stop requested");
-			ros::shutdown();
+			running = false;
 
 		} else {
 			PX4_INFO("not started");
@@ -141,27 +142,26 @@ int iekf_main(int argc, char *argv[])
 
 int iekf_thread_main(int argc, char *argv[])
 {
-	ros::init(argc, argv, "iekf");
-
-	ROS_INFO("started");
+	PX4_INFO("started");
 
 	if (est == NULL) {
 		est = new IEKF();
 
 	} else {
 
-		ROS_INFO("already running");
+		PX4_INFO("already running");
 		return -1;
 	}
 
-	while (est->ok()) {
+	running = true;
+
+	while (running) {
 		// uses polling
 		est->update();
 	}
 
-	ros::shutdown();
 	delete est;
 	est = NULL;
-	ROS_INFO("stopped");
+	PX4_INFO("stopped");
 	return 0;
 }

@@ -34,6 +34,7 @@ px4_add_module(
 	MODULE modules__iekf
 	MAIN iekf
 	COMPILE_FLAGS
+		-DMATRIX_HAMILTON_QUATERNION
 		-Weffc++
 	STACK_MAIN 5000
 	STACK_MAX 20000
@@ -51,7 +52,6 @@ px4_add_module(
 		IEKF.cpp
 		iekf_main.cpp
 	DEPENDS
-		lib__ros
 		platforms__common
 	)
 # vim: set noet ft=cmake fenc=utf-8 ff=unix :
