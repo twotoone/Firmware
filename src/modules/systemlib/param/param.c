@@ -727,9 +727,13 @@ param_set_internal(param_t param, const void *val, bool mark_saved, bool notify_
 
 		case PARAM_TYPE_STRUCT ... PARAM_TYPE_STRUCT_MAX:
 			if (s->val.p == NULL) {
-				s->val.p = malloc(param_size(param));
+				size_t psize = param_size(param);
 
-				if (s->val.p == NULL) {
+				if (psize > 0) {
+					s->val.p = malloc(psize);
+
+				} else {
+					s->val.p = NULL;
 					debug("failed to allocate parameter storage");
 					goto out;
 				}
@@ -1212,9 +1216,13 @@ param_import_callback(bson_decoder_t decoder, void *private, bson_node_t node)
 		}
 
 		/* XXX check actual file data size? */
-		tmp = malloc(param_size(param));
+		size_t psize = param_size(param);
 
-		if (tmp == NULL) {
+		if (psize > 0) {
+			tmp = malloc(psize);
+
+		} else {
+			tmp = NULL;
 			debug("failed allocating for '%s'", node->name);
 			goto out;
 		}
